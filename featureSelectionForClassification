@@ -1,0 +1,49 @@
+
+
+def feature_Selection_for_classification(X,Y):
+    from xgboost import XGBClassifier
+    from xgboost import plot_importance
+    from sklearn.model_selection import train_test_split
+    from sklearn.feature_selection import SelectFromModel
+    from sklearn.metrics import accuracy_score
+
+    # splitting data in test train 
+    X_train, X_test, y_train, y_test = train_test_split(X,Y, random_state=42, test_size=.33)
+    
+    # creating model 
+    model = XGBClassifier()
+    
+    # fitting model 
+    model.fit(X_train,y_train)
+     
+    #plot feature importance
+    plot_importance(model)
+    plt.show()
+
+    
+    #selecting features based on model 
+    thresholds = sorted(model.feature_importances_)
+    sorted_idx = np.argsort(model.feature_importances_)[::-1]
+    for index in sorted_idx:
+        print(" the features and thier importance :",[X_train.columns[index], model.feature_importances_[index]]) 
+    
+    for thresh in thresholds:
+       # select features using threshold
+        selection = SelectFromModel(model, threshold=thresh, prefit=True)
+        select_X_train = selection.transform(X_train)
+        
+        # train model
+        print(select_X_train.shape)
+        selection_model = XGBClassifier()
+        selection_model.fit(select_X_train, y_train)
+       
+        # eval model
+        select_X_test = selection.transform(X_test)
+        print("shape of selection test",select_X_test.shape)
+        y_pred = selection_model.predict(select_X_test)
+       
+        #predictions = [round(value) for value in y_pred]
+        accuracy=accuracy_score(y_test,y_pred)
+        print("Thresh=",thresh, " and accuracy is :", accuracy)
+        
+       
