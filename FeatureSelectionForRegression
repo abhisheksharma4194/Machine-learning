@@ -1,5 +1,5 @@
 
-def featureSelection(X,Y):
+def featureSelection_for_regression(X,Y):
     # impoting the required libraries 
     from xgboost import XGBRegressor
     from xgboost import plot_importance
